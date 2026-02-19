@@ -368,53 +368,48 @@ Peak-to-peak swing ≈ 2.68 V
 
 ## Module Interconnection Map
 
-```
-uart_rx.v
-  ports:  clk, resetn, uart_rxd → uart_rx_valid, uart_rx_data[7:0]
-  → top.v parser FSM
+```mermaid
+graph LR
+    PC["PC\n(Python)"]
+    PIN17["Pin 17\npdm_out RF"]
+    PIN20["Pin 20\nsq_out LO"]
+    PCDBG["PC\ndebug RX"]
 
-top.v (parser FSM + rate divider)
-  reads:  uart_rx_data[7:0]
-  writes: tuning_reg[31:0]         → nco.v
-          fifo_wr_data[15:0]       → smart_fifo.v
-          cic_i_in[7:0] (signed)   → cic_interpolator.v (instance cic_i)
-          cic_q_in[7:0] (signed)   → cic_interpolator.v (instance cic_q)
-          cic_strobe               → both CIC instances
+    subgraph top_v["top.v"]
+        PARSER["Parser FSM\n0x80 = cmd\nelse I/Q pair"]
+        RATEDIV["Rate Divider\n÷844 → 31 990 Hz\n+ ZOH"]
+    end
 
-smart_fifo.v  (DATA_WIDTH=16, ADDR_WIDTH=12)
-  ports:  wr_en, wr_data[15:0] → rd_data[15:0], full, empty
-  → top.v reads fifo_rd_data[15:8] as I, [7:0] as Q
+    subgraph nco_v["nco.v  (32-bit, LUT_DEPTH_LOG2=10)"]
+        ACCUM["Phase Accum\n32-bit"]
+        ROMSIN["rom_sin\nsine_lut\n1024×12-bit BSRAM"]
+        ROMCOS["rom_sin\ncosine_lut\n1024×12-bit BSRAM"]
+        ACCUM --> ROMSIN & ROMCOS
+    end
 
-cic_interpolator.v  (×2: cic_i, cic_q)
-  params: WIDTH_IN=8, WIDTH_OUT=8, ORDER=2, RATE=844
-  ports:  clk, rst_n, in_data[7:0], in_strobe → out_data[7:0], out_valid
-  → iq_mixer.v (i_data, q_data)
+    PC -->|"uart_rxd"| UARTRX["uart_rx.v"]
+    UARTRX -->|"rx_valid\nrx_data[7:0]"| PARSER
 
-nco.v  (WIDTH=32, LUT_DEPTH_LOG2=10)
-  ports:  clk, rst_n, tuning_word[31:0] → sin_out[11:0], cos_out[11:0]
-  instantiates: rom_sin (×2: sine_lut, cosine_lut)
-  → iq_mixer.v (cos_data, sin_data)
-  → top.v sq_out = sin_out[11]
+    PARSER -->|"tuning_reg[31:0]"| ACCUM
+    PARSER -->|"wr_en\nwr_data[15:0]"| FIFO["smart_fifo.v\n4096×16-bit\n4 BSRAM blocks"]
 
-rom_sin.v  (×2 instances inside nco.v)
-  ports:  clk, addr[9:0] → data[11:0] (signed)
-  memory: 1024 × 12-bit, 1-clock latency
-  BSRAM:  1 block each = 2 blocks total
+    FIFO -->|"rd_data[15:0]\nrd_en"| RATEDIV
 
-iq_mixer.v
-  ports:  clk, rst_n,
-          i_data[7:0], q_data[7:0],
-          cos_data[11:0], sin_data[11:0]
-          → out_data[11:0] (signed)
-  → sigma_delta.v (din)
+    RATEDIV -->|"cic_i_in[7:0]\ncic_strobe"| CICI["cic_interpolator\ncic_i  ORDER=2, RATE=844"]
+    RATEDIV -->|"cic_q_in[7:0]\ncic_strobe"| CICQ["cic_interpolator\ncic_q  ORDER=2, RATE=844"]
 
-sigma_delta.v  (WIDTH=12)
-  ports:  clk, rst_n, din[11:0] (signed) → pdm_out (1-bit)
-  → Pin 17
+    ROMCOS -->|"cos_out[11:0]"| MIXER["iq_mixer.v"]
+    ROMSIN -->|"sin_out[11:0]"| MIXER
+    ROMSIN -->|"sin_out[11]"| PIN20
 
-uart_tx.v  (debug loopback)
-  sends cic_i_out back to PC at 921 600 baud
-  → Pin 16 (not needed for normal operation)
+    CICI -->|"i_data[7:0]"| MIXER
+    CICQ -->|"q_data[7:0]"| MIXER
+
+    MIXER -->|"mixer_out[11:0]"| SD["sigma_delta.v\nWIDTH=12"]
+    SD -->|"pdm_out 1-bit"| PIN17
+
+    CICI -->|"cic_i_out[7:0]"| UARTTX["uart_tx.v\ndebug loopback"]
+    UARTTX -->|"uart_txd"| PCDBG
 ```
 
 ---
