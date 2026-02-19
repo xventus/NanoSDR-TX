@@ -1,0 +1,18 @@
+{
+    "name": "NanoSDR-TX",
+    "board": "tangnano4k",
+    "includedFiles": [
+        "top.v",
+        "iq_mixer.v",
+        "cic_interpolator.v",
+        "uart_rx.v",
+        "uart_tx.v",
+        "nco.v",
+        "rom_sin.v",
+        "sigma_delta.v",
+        "smart_fifo.v"
+    ],
+    "testBenches": [],
+    "constraintsFile": "tangnano4k.cst",
+    "top": "top"
+}

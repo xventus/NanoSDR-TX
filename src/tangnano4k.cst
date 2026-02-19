@@ -1,0 +1,25 @@
+// Tang Nano 4K — 03_uart Pin Constraints
+// System Clock
+IO_LOC  "clk" 45;
+IO_PORT "clk" PULL_MODE=UP;
+
+// LED (onboard, active low)
+IO_LOC  "led" 10;
+IO_PORT "led" DRIVE=8 IO_TYPE=LVCMOS33;
+
+// UART (External Adapter on GPIO Header)
+// Adapter TX -> FPGA Pin 13
+IO_LOC  "uart_rx" 13;
+IO_PORT "uart_rx" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+
+// Adapter RX <- FPGA Pin 16
+IO_LOC  "uart_tx" 16;
+IO_PORT "uart_tx" IO_TYPE=LVCMOS33 DRIVE=8;
+
+// Square wave output (NCO MSB) - Moved to Pin 20
+IO_LOC  "sq_out" 20;
+IO_PORT "sq_out" DRIVE=8 IO_TYPE=LVCMOS33;
+
+// Sigma-Delta PDM output
+IO_LOC  "pdm_out" 17;
+IO_PORT "pdm_out" DRIVE=8 IO_TYPE=LVCMOS33;
