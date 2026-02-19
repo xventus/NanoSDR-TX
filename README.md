@@ -13,6 +13,19 @@ The system was not designed to communicate with PC software but for RTOS, from w
 > * Ensure correct **50-ohm impedance matching** before connecting to any RF equipment (e.g. buffer with MCP6022).
 > * Connecting the output directly to an antenna may cause illegal interference.
 
+
+<p align="center">
+  <img src="imgs/PDM.png" width="600"><br>
+  <b>PDM waveform of 1-bit output and signal behind LPF</b>
+</p>
+
+
+
+<p align="center">
+  <img src="imgs/carrier_pdm_no_filter.png" width="600"><br>
+  <b>Spectrum of unfiltered carrier 10kHz in PDM output</b>
+</p>
+
 ---
 
 ## Hardware & Requirements
@@ -511,3 +524,12 @@ python send_am.py --port COM4 --freq 150000 --tone 1000 --mod 0.5 --rate 32000 -
 python send_nbfm.py --port COM4 --freq 50000 --tone 100 --deviation 20000 --rate 32000 --loop
 ```
 
+<p align="center">
+  <img src="imgs/AM.png" width="600"><br>
+  <b>AM modulation -> send_am.py </b>
+</p>
+
+<p align="center">
+  <img src="imgs/carrierAM.png" width="600"><br>
+  <b>Detail of the carrier wave</b>
+</p>
