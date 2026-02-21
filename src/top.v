@@ -2,7 +2,7 @@
  * @file top.v
  * @author Petr Vanek (petr@fotoventus.cz)
  * @brief FPGA Top-Level for NanoSDR-TX (UART + FIFO + CIC + I/Q Modulator)
- * @version 0.1
+ * @version 0.2
  * 
  * @copyright Copyright (c) 2026 Petr Vanek
  * 
@@ -15,6 +15,7 @@ module top #(
     input  wire clk,
     input  wire uart_rx,
     output wire uart_tx,
+    output wire uart_rts,
     output wire led,
     output wire sq_out,
     output wire pdm_out
@@ -63,7 +64,7 @@ module top #(
 
     reg [2:0] state = S_IDLE_OR_I;
     reg [7:0] i_byte = 0;
-    reg [31:0] tuning_reg = 32'd1590720; // Default 10 kHz -> test Pin 20 — LO square after start !
+    reg [31:0] tuning_reg = 32'd1590720; // Default 10 kHz
     reg [23:0] cmd_accum = 0; // Temp storage for top 3 bytes of TW
 
     reg fifo_wr_en = 0;
@@ -136,7 +137,8 @@ module top #(
         .full(fifo_full),
         .rd_en(fifo_rd_en),
         .rd_data(fifo_rd_data),
-        .empty(fifo_empty)
+        .empty(fifo_empty),
+        .almost_full(uart_rts)
     );
 
     // =====================================================================
@@ -301,7 +303,6 @@ module top #(
         if (resetn)
             led_cnt <= led_cnt + 1;
 
-        // TODO: add other diagnostic output
         if (rx_valid)
             rx_led_counter <= 24'd2700000;
         else if (rx_led_counter != 0)

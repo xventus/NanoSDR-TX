@@ -2,8 +2,8 @@
  * @file smart_fifo.v
  * @author Petr Vanek (petr@fotoventus.cz)
  * @brief Synchronous FIFO with BSRAM inference + First-Word-Fall-Through output
- * @version 0.1
-  * 
+ * @version 0.2
+ * 
  * @copyright Copyright (c) 2026 Petr Vanek
  * 
  */
@@ -23,13 +23,14 @@ module smart_fifo #(
     // Read port (FWFT)
     input  wire                  rd_en,
     output wire [DATA_WIDTH-1:0] rd_data,
-    output wire                  empty
+    output wire                  empty,
+    output wire                  almost_full
 );
 
     localparam DEPTH = 1 << ADDR_WIDTH;
 
     // =========================================================================
-    // Block RAM — coded for Gowin BSRAM inference ()
+    // Block RAM — coded for Gowin BSRAM inference
     // =========================================================================
     reg [DATA_WIDTH-1:0] mem [0:DEPTH-1];
 
@@ -50,10 +51,10 @@ module smart_fifo #(
             mem[wr_ptr] <= wr_data;
     end
 
-// --- Synchronous read (UNCONDITIONAL — required for BSRAM inference !!) ---
+    // --- Synchronous read (UNCONDITIONAL — required for BSRAM inference) ---
     reg [DATA_WIDTH-1:0] ram_out;
     always @(posedge clk) begin
-        ram_out <= mem[rd_ptr];  
+        ram_out <= mem[rd_ptr]; 
     end
 
     // --- Pointers + count (single always block) ---
@@ -77,9 +78,10 @@ module smart_fifo #(
     end
 
     assign full = ram_full;
+    assign almost_full = (count >= DEPTH - 64);
 
     // =========================================================================
-    // FWFT Output Register 
+    // FWFT Output Register
     // =========================================================================
     reg [DATA_WIDTH-1:0] out_reg;
     reg                  out_valid;

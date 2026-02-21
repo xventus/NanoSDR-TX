@@ -16,6 +16,10 @@ IO_PORT "uart_rx" IO_TYPE=LVCMOS33 PULL_MODE=UP;
 IO_LOC  "uart_tx" 16;
 IO_PORT "uart_tx" IO_TYPE=LVCMOS33 DRIVE=8;
 
+// Adapter RTS <- FPGA Pin 18 (Hardware Flow Control -> connects to FTDI CTS)
+IO_LOC  "uart_rts" 18;
+IO_PORT "uart_rts" IO_TYPE=LVCMOS33 DRIVE=8;
+
 // Square wave output (NCO MSB) - Moved to Pin 20
 IO_LOC  "sq_out" 20;
 IO_PORT "sq_out" DRIVE=8 IO_TYPE=LVCMOS33;
