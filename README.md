@@ -67,8 +67,8 @@ graph TD
             direction TB
             FIFO["smart_fifo.v<br/>4 096 × 16-bit · 4 × BSRAM<br/>128 ms jitter buffer"]
             RATEDIV["Rate Divider ÷ 844<br/>31 990 Hz strobe<br/>ZOH when FIFO empty"]
-            CICI["cic_interpolator.v<br/>CIC-I<br/>ORDER=2  RATE=844<br/>28-bit internal"]
-            CICQ["cic_interpolator.v<br/>CIC-Q<br/>ORDER=2  RATE=844<br/>28-bit internal"]
+            CICI["cic_interpolator.v<br/>CIC-I<br/>ORDER=3  RATE=844<br/>28-bit internal"]
+            CICQ["cic_interpolator.v<br/>CIC-Q<br/>ORDER=3  RATE=844<br/>28-bit internal"]
         end
 
         MIXER["iq_mixer.v<br/>I·cos − Q·sin<br/>2-cycle pipeline<br/>out: 12-bit signed"]
@@ -482,11 +482,11 @@ Values clamped to −127..+127. Value −128 (0x80) is never sent — it is the 
 | `uart_rx.v` | UART receiver, 2-stage synchronizer, center sampling |
 | `uart_tx.v` | UART transmitter (debug loopback of CIC I output) |
 | `smart_fifo.v` | Synchronous FWFT FIFO, BSRAM inference, 4096×16 entries |
-| `cic_interpolator.v` | CIC filter ORDER=2 RATE=844, Comb+Integrator, 28-bit internal |
+| `cic_interpolator.v` | CIC filter ORDER=3 RATE=844, Comb+Integrator, 28-bit internal |
 | `nco.v` | Phase accumulator 32-bit + dual ROM addressing |
 | `rom_sin.v` | 1024-entry 12-bit sine LUT (BSRAM-inferred) |
 | `iq_mixer.v` | Quadrature mixer: (I·cos − Q·sin)>>7, 2-cycle pipeline |
-| `sigma_delta.v` | 1st-order sigma-delta DAC, 12-bit in, 1-bit PDM out |
+| `sigma_delta.v` | 2nd-order sigma-delta DAC, 12-bit in, 1-bit PDM out |
 | `send_nbfm.py` | Python: NBFM/CW transmitter + UART streaming |
 | `send_am.py` | Python: AM transmitter + UART streaming |
 
