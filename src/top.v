@@ -23,7 +23,7 @@ module top #(
 
     // ---- CIC Parameters ----
     localparam CIC_RATE  = 844;   // 27M/844 = 31990 Hz
-    localparam CIC_ORDER = 2;     // reduced to fit FPGA
+    localparam CIC_ORDER = 3;     
 
     // ---- Reset Generator ----
     reg [7:0] rst_cnt = 0;
