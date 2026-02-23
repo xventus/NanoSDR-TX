@@ -521,6 +521,10 @@ python send_am_hw.py --port COM4 --freq 150000 --tone 1000 --mod 0.5 --rate 3200
 
 # 4. NBFM — wideband test (visible on oscilloscope)
 python send_nbfm_hw.py --port COM4 --freq 50000 --tone 100 --deviation 20000 --rate 32000 --loop
+
+# 5. QPSK Transmitter script with message "Hello Constello SDR! LF" and sync 0x1A2B3C4D
+python .\send_qpsk_hw.py --port COM4 --sps 4 --loop --symbols 5000
+
 ```
 
 <p align="center">
@@ -532,3 +536,14 @@ python send_nbfm_hw.py --port COM4 --freq 50000 --tone 100 --deviation 20000 --r
   <img src="imgs/carrierAM.png" width="600"><br>
   <b>Detail of the carrier wave</b>
 </p>
+
+<p align="center">
+  <img src="imgs/fpga.png" width="600"><br>
+  <b>Decoding messages from QPSK burdened by filter imperfection, 1-bit converter & RC as LP, but it works</b>
+</p>
+
+<p align="center">
+  <img src="imgs/preciseDA_filtered.png" width="600"><br>
+  <b>For comparison: Decoding messages from a QPSK transmitter with a DA converter and a high-quality LP filter.</b>
+</p>
+
